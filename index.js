@@ -7,7 +7,7 @@ import route from "./routers/index.js";
 // Lấy đường dẫn của thư mục mà file javascript hiện tại đang được thực thi
 const __dirname = path.dirname(new URL(import.meta.url).pathname);
 const app = express();
-const port = 3000;
+const port = 8080;
 dotenv.config();
 
 // cấu hình body-paser 
