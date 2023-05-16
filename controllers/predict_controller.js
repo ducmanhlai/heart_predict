@@ -5,9 +5,16 @@ import docterBot from "../docterbot/docterBot.js";
 import { randomPredictData } from "../utils/randomPredictData.js";
 import { createError } from "../utils/createError.js";
 
+// Tự động predict trong ngày
+// Khi bấm nút: Tiến hành lấy dữ liệu từ trước cho đến khi bấm nút
+
 export const predict = async (req, res, next) => {
 
     const userId = req.params.userid;
+    const time = req.body.timeStamp;
+    const timeStamp = new Date(time);
+    console.log(userId);
+    console.log(timeStamp);
 
     try {
         // B1: Xử lý dữ liệu từ client.
@@ -15,10 +22,12 @@ export const predict = async (req, res, next) => {
         const userStat = await User.findById(userId);
         // B1.2: Truy vấn data cảm biến dựa trên id user.
         const userData = await Data.find({ userInfo: userId });
+        console.log(userStat);
 
         // B1.3: Trích xuất dữ liệu và tiến hành xử lý dữ liệu
         // Trích xuất dữ liệu chỉ số từ userStat
         const { gender, birthDay, height, weight, ...otherDetails } = userStat._doc;
+
         // Tạo ra một mảng chứa các đối tượng date từ thuộc tính date của userData.
         const date = userData.map(({ date }) => date);
         // Từ mảng date, kết hợp từng phần tử của nó lần lượt với các thuộc tính heartRate, SpO2, temp để tạo ra các mảng
@@ -34,8 +43,16 @@ export const predict = async (req, res, next) => {
 
         // B2: Tính toán dữ liệu từ các mảng dữ liệu trên.
         // B2.1: Tính tuổi:
-        // Chuyển kiểu dữ liệu của birthDay từ String thành Date.
-        const brthDay = new Date(birthDay);
+        // Chuyển kiểu dữ liệu của birthDay từ String thành Date:
+        // - Tách chuỗi thành mảng các phần tử.
+        const parts = birthDay.split('/');
+        // - Lấy giá trị ngày, tháng và năm từ mảng parts.
+        const day = parseInt(parts[0]);
+        const month = parseInt(parts[1]) - 1; // Giảm đi 1 vì tháng trong JavaScript bắt đầu từ 0.
+        const year = parseInt(parts[2]);
+        // - Chuyển đổi thành kiểu Date.
+        const brthDay = new Date(year, month, day);
+        console.log(brthDay);
         // Lấy ngày hiện tại.
         const currentDate = new Date();
         // Tính sự chênh lệch giữa hai mốc thời gian (đơn vị miliseconds).
@@ -59,7 +76,7 @@ export const predict = async (req, res, next) => {
         // Tạo một mảng các giá trị số đo nồng độ Oxy từ mảng đối tượng SpO2 dựa vào ngày hiện tại.
         const spO2Values = [];
         for (const spo2 of SpO2s) {
-            if (currentDate.getFullYear() === spo2.date.getFullYear() && currentDate.getMonth() === spo2.date.getMonth() && currentDate.getDate() === spo2.date.getDate()) {
+            if (spo2.date.getTime() <= timeStamp.getTime()) {
                 spO2Values.push(spo2.oxygen);
             }
         }
@@ -127,7 +144,7 @@ export const predict = async (req, res, next) => {
         // Tạo một mảng các giá trị số đo nhịp tim từ mảng đối tượng heartRate dựa vào ngày hiện tại.
         const hrValues = [];
         for (const heartRate of heartRates) {
-            if (currentDate.getFullYear() === heartRate.date.getFullYear() && currentDate.getMonth() === heartRate.date.getMonth() && currentDate.getDate() === heartRate.date.getDate()) {
+            if (heartRate.date.getTime() <= timeStamp.getTime()) {
                 hrValues.push(heartRate.bmp);
             }
         }
@@ -142,11 +159,10 @@ export const predict = async (req, res, next) => {
         // Tính trung bình cộng giá trị nhiệt độ.
         const tempValues = [];
         for (const tempvalue of temps) {
-            if (currentDate.getFullYear() === tempvalue.date.getFullYear() && currentDate.getMonth() === tempvalue.date.getMonth() && currentDate.getDate() === tempvalue.date.getDate()) {
+            if (tempvalue.date.getTime() <= timeStamp.getTime()) {
                 tempValues.push(tempvalue.temperature);
             }
         }
-        console.log(tempValues);
 
         const averTemp = Math.round((tempValues.reduce((sum, curr) => sum + curr, 0) / tempValues.length));
 

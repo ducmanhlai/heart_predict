@@ -11,9 +11,9 @@ class DataControllers {
         temp,
         date,
       });
-      return res.status.json(newData);
+      res.status(200).json(newData);
     } catch (err) {
-      return res.json({
+      res.json({
         success: false,
         status: err.status,
         message: err.message,
