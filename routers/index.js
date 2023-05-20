@@ -1,7 +1,7 @@
 import authRouter from "./auth.routes.js";
 import dataRouter from "./data.routes.js";
 import historyRouter from "./history.routes.js";
-
+import siteRouter from "./site.routes.js";
 import predictRouter from "./predicts.js";
 
 function hieu56(app) {
@@ -26,7 +26,7 @@ function route(app) {
   hoa(app);
   manh(app);
   //API chung
-  //   app.use("/site", siteRouter);
+  app.use("/site", siteRouter);
   app.use("/", (req, res) => {
     res.send("Hello");
   });

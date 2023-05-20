@@ -9,8 +9,218 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-// Message object
+export async function sendResult(
+  mail,
+  bpm = 65,
+  spo2 = 95,
+  temp = 36.5,
+  dateTest = new Date(),
+  text
+) {
+  let message = {
+    from: "Sender Name <health-monitor.com>",
+    to: mail,
+    subject: "Cảnh báo từ health-monitor.com",
+    text: "Xin chào!",
+    // html: `<p> Click vào <a href="${process.env.BASE_URL}/account/change-password-form?token=${token}"> đây </a> để đổi mật khẩu!<p/>
+    // <p>Link chỉ có hiệu lực trong 5 phút</p>
+    // `
+    html: `<div
+    class="adn ads"
+    style="display: "
+    data-message-id="#msg-f:1766190394547587327"
+    data-legacy-message-id="1882c4ce60b748ff"
+  >
+    <div class="gs">
+      <div id=":nc">
+        <div class="qQVYZb"></div>
+        <div class="utdU2e"></div>
+        <div class="lQs8Hd" jsaction="SN3rtf:rcuQ6b" jscontroller="i3Ohde"></div>
+        <div class="btm"></div>
+      </div>
+      <div class="">
+        <div class="aHl"></div>
+        <div id=":np" tabindex="-1"></div>
+        <div
+          id=":ne"
+          class="ii gt"
+          jslog="20277; u014N:xr6bB; 1:WyIjdGhyZWFkLWY6MTc2NjE5MDM5NDU0NzU4NzMyNyIsbnVsbCxudWxsLG51bGwsbnVsbCxudWxsLG51bGwsbnVsbCxudWxsLG51bGwsbnVsbCxudWxsLG51bGwsW11d; 4:WyIjbXNnLWY6MTc2NjE5MDM5NDU0NzU4NzMyNyIsbnVsbCxbXV0."
+        >
+          <div id=":nd" class="a3s aiL">
+            <table
+              style="
+                line-height: 1.8;
+                border-collapse: collapse;
+                display: block;
+                font-size: 13.5px;
+                font-family: Times New Roman;
+                color: #1f497d;
+              "
+            >
+              <tbody>
+                <tr style="height: 40px">
+                  <td>
+                    <img
+                      alt=""
+                      src="https://www.healthkart.com/connect/wp-content/uploads/2021/09/900x500_banner_HK-Connect_How-to-Improve-Heart-Health-_-Points-To-Keep-In-Mind.jpg"
+                      class="CToWUd a6T"
+                      data-bit="iit"
+                      tabindex="0"
+                    />
+                    <div
+                      class="a6S"
+                      dir="ltr"
+                      style="opacity: 0.01; left: 653px; top: 109px"
+                    >
+                      <div
+                        id=":ol"
+                        class="T-I J-J5-Ji aQv T-I-ax7 L3 a5q"
+                        role="button"
+                        tabindex="0"
+                        aria-label="Tải xuống tệp đính kèm "
+                        jslog="91252; u014N:cOuCgd,Kr2w4b,xr6bB; 4:WyIjbXNnLWY6MTc2NjE5MDM5NDU0NzU4NzMyNyIsbnVsbCxbXV0."
+                        data-tooltip-class="a1V"
+                        data-tooltip="Tải xuống"
+                      >
+                        <div class="akn"><div class="aSK J-J5-Ji aYr"></div></div>
+                      </div>
+                    </div>
+                    <br />
+                  </td>
+                </tr>
+                <tr style="height: 40px">
+                  <td
+                    style="font-size: medium; color: #1f497d; margin-left: 10px"
+                  >
+                    <span>Xin chào bạn, </span>
+                  </td>
+                </tr>
+                <tr style="height: 40px">
+                  <td
+                    style="font-size: medium; color: #1f497d; margin-left: 10px"
+                  >
+                    <span
+                      >Ứng dụng giám sát sức khỏe Health Monitor xin cảnh báo về
+                      vấn đề sức khỏe của bạn như sau:</span
+                    >
+                  </td>
+                </tr>
+                <tr style="height: 40px">
+                  <td>
+                    <table
+                      style="margin-left: 30px; font-size: medium; color: #1f497d"
+                    >
+                      <tbody>
+                        <tr style="height: 40px">
+                          <td style="width: 200px">
+                            <span style="font-weight: bold"
+                              >Nhịp tim bạn hiện tại</span
+                            >
+                          </td>
+                          
+                          <td><span>${bpm}</span> <span>% </span></td>
+                        </tr>
+                        <tr style="height: 40px">
+                          <td style="width: 200px">
+                            <span style="font-weight: bold"
+                              >Nồng độ oxy trong máu</span
+                            >
+                          </td>
+                          <td><span>${spo2}</span> <span>% </span></td>
+                        </tr>
+                        <tr style="height: 40px">
+                          <td style="width: 200px">
+                            <span style="font-weight: bold"
+                              >Nhiệt độ của cơ thể</span
+                            >
+                          </td>
+                          <td><span>${temp}</span> <span> oC </span></td>
+                        </tr>
+                        <tr style="height: 40px">
+                          <td style="width: 200px">
+                            <span style="font-weight: bold"
+                              >Ngày và giờ thực hiện</span
+                            >
+                          </td>
+                          <td>${dateTest}</td>
+                        </tr>
+                        <tr style="height: 40px">
+                          <td style="width: 200px">
+                            <span style="font-weight: bold">Chuẩn đoán</span>
+                          </td>
+                          <td>${text}<br /></td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </td>
+                </tr>
+                <tr style="height: 40px">
+                  <td
+                    style="font-size: medium; color: #1f497d; margin-left: 10px"
+                  >
+                    <br />
+                  </td>
+                </tr>
+                <tr style="height: 40px">
+                  <td
+                    style="font-size: medium; color: #1f497d; margin-left: 10px"
+                  >
+                    Trân trọng cảm ơn bạn đã sử dụng dịch vụ giám sát sức
+                    khỏe của Health Monitor!
+                    <br />
+                  </td>
+                </tr>
+                <tr style="height: 40px">
+                  <td>
+                    <br /><br />
+                    <img
+                      alt=""
+                      src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTVeO2L04SG3L2c2k12Shw_eNzTGSLVBdkxSQ&usqp=CAU"
+                      class="CToWUd a6T"
+                      data-bit="iit"
+                      tabindex="0"
+                    />
+                    <div
+                      class="a6S"
+                      dir="ltr"
+                      style="opacity: 0.01; left: 653px; top: 787.9px"
+                    >
+                      <div
+                        id=":om"
+                        class="T-I J-J5-Ji aQv T-I-ax7 L3 a5q"
+                        role="button"
+                        tabindex="0"
+                        aria-label="Tải xuống tệp đính kèm "
+                        jslog="91252; u014N:cOuCgd,Kr2w4b,xr6bB; 4:WyIjbXNnLWY6MTc2NjE5MDM5NDU0NzU4NzMyNyIsbnVsbCxbXV0."
+                        data-tooltip-class="a1V"
+                        data-tooltip="Tải xuống"
+                      >
+                        <div class="akn"><div class="aSK J-J5-Ji aYr"></div></div>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="yj6qo"></div>
+        </div>
+        <div id=":nt" class="ii gt" style="display: none">
+          <div id=":nu" class="a3s aiL"></div>
+        </div>
+        <div class="hi"></div>
+      </div>
+    </div>
+    <div class="ajx"></div>
+  </div>
+  `,
+  };
+  let rs = await transporter.sendMail(message);
+  console.log(rs);
+  return rs;
+}
 
+// Message object
 async function sendChangePassMail(mail, token) {
   let message = {
     from: "Sender Name <health-monitor.com>",
