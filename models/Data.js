@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 
+
 const DataSchema = new mongoose.Schema(
     {
         userInfo: {
@@ -21,7 +22,8 @@ const DataSchema = new mongoose.Schema(
         },
         date: {
             type: Date,
-            default: Date.now,
+            default: new Date()
+            
         }
     });
 

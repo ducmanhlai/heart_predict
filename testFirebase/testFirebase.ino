@@ -69,8 +69,7 @@ void configMax30105(){
   // Initialize sensor
   while (!particleSensor.begin(Wire, I2C_SPEED_FAST)) //Use default I2C port, 400kHz speed
   {
-    Serial.println(F("MAX30105 was not found. Please check wiring/power."));
-    
+    Serial.println(F("MAX30105 was not found. Please check wiring/power."));    
   }
 
   Serial.println(F("Attach sensor to finger with rubber band. Press any key to start conversion"));
@@ -85,7 +84,7 @@ void configMax30105(){
   int adcRange = 4096; //Options: 2048, 4096, 8192, 16384
 
   particleSensor.setup(ledBrightness, sampleAverage, ledMode, sampleRate, pulseWidth, adcRange); //Configure sensor with these settings
-  }
+}
 
 void calculateData(){
     bufferLength = 100; //buffer length of 100 stores 4 seconds of samples running at 25sps

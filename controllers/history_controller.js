@@ -85,7 +85,7 @@ class HistoryController {
     res.status(200).json({
       status: true,
       message: "Thành công",
-      data: data,
+      data: data.slice(0,20),
     });
   }
 }
