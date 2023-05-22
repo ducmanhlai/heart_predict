@@ -1,5 +1,7 @@
 import Account from "../models/Account.js";
 import Data from "../models/Data.js";
+import History from "../models/History.js";
+import User from "../models/User.js";
 class HistoryController {
   async getHistory(req, res, next) {
     const data = await Data.find({ userInfo: req.body._doc.userInfo });
@@ -73,6 +75,17 @@ class HistoryController {
       status: true,
       message: "Thành công",
       data: {},
+    });
+  }
+  async getHistoryPredict(req,res){
+    const userStat = await User.findOne({
+      _id: req.body._doc.userInfo._id,
+    });
+    const data = await History.find({ _id: { $in: userStat.history } });
+    res.status(200).json({
+      status: true,
+      message: "Thành công",
+      data: data,
     });
   }
 }
