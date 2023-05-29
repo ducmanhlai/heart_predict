@@ -118,7 +118,7 @@ export async function sendResult(
                             >
                           </td>
                           
-                          <td><span>${bpm}</span> <span>% </span></td>
+                          <td><span>${bpm}</span> <span> bmp </span></td>
                         </tr>
                         <tr style="height: 40px">
                           <td style="width: 200px">
@@ -134,7 +134,7 @@ export async function sendResult(
                               >Nhiệt độ của cơ thể</span
                             >
                           </td>
-                          <td><span>${temp}</span> <span> oC </span></td>
+                          <td><span>${temp}</span> <span> °C </span></td>
                         </tr>
                         <tr style="height: 40px">
                           <td style="width: 200px">

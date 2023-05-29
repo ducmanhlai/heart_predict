@@ -38,20 +38,6 @@ class DataControllers {
       });
     }
   }
-
-  async getLatestData(req, res) {
-    try {
-      const data = await Data.findOne({ userInfo: req.params.id });
-      res.status(200).json(data);
-    } catch (err) {
-      return res.json({
-        success: false,
-        status: err.status,
-        message: err.message,
-        stack: err.stack,
-      });
-    }
-  }
-}
+} 
 
 export default new DataControllers();
