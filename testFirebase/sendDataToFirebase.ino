@@ -203,11 +203,9 @@ void displayOled(){
   display.println(" bpm");
   display.setCursor(0, 12);        
   display.print("Nhiet do: ");
-  sensor.startTemperatureSampling();
-  
+  sensor.startTemperatureSampling();  
   display.print(temperature,1);
-  display.println("*C");
-  
+  display.println("*C");  
   display.setCursor(0, 24);
   display.print("Nong do oxy: ");
   display.print(spo2);
@@ -218,9 +216,7 @@ void displaySerial(){
   Serial.print(heartRate,0);
   Serial.print("bpm / SpO2:");
   Serial.print(spo2);
-  Serial.print("%, temp: ");
- 
+  Serial.print("%, temp: "); 
   Serial.print(temperature,1);
-  Serial.println(" *C");
-  
+  Serial.println(" *C");  
 }  

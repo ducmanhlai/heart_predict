@@ -4,7 +4,7 @@ import History from "../models/History.js";
 import User from "../models/User.js";
 class HistoryController {
   async getHistory(req, res, next) {
-    const data = await Data.find({ userInfo: req.body._doc.userInfo });
+    const data = await Data.find({userInfo:req.body._doc._id});
     res.status(200).json({
       status: true,
       message: "Thành công",
@@ -12,11 +12,11 @@ class HistoryController {
     });
   }
   async getNearestHistory(req, res, next) {
-    const time = 3000;
+    const time = 24;
     const data = await Data.find({
       date: { $gt: new Date(Date.now() - time * 60 * 60 * 1000) },
-      userInfo: req.body._doc.userInfo,
-    });
+      userInfo: req.body._doc._id,
+    }).sort({'date':-1});
     const grouped = data.reduce((acc, curr) => {
       const hour = curr.date.getUTCHours();
       acc[hour] = [...(acc[hour] || []), curr];
@@ -42,7 +42,7 @@ class HistoryController {
     res.status(200).json({
       status: true,
       message: "Thành công",
-      data: result,
+      data: data,
     });
   }
  
@@ -50,9 +50,9 @@ class HistoryController {
     const userStat = await User.findOne({
       _id: req.body._doc.userInfo._id,
     });
-   
+    // .slice(Number(page)*10-10,Number(page)*10)
     var page= req.query.page || 1;
-    const data = await History.find({ _id: { $in: userStat.history.slice(Number(page)*10-10,Number(page)*10) } });
+    const data = await History.find({ _id: { $in: userStat.history } });
     res.status(200).json({
       status: true,
       message: "Thành công",

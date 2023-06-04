@@ -23,6 +23,7 @@ FirebaseConfig config;
 
 unsigned long sendDataPrevMillis = 0;
 bool signupOK = false;
+const int ledPin = 2;
 /*-----------------------------------------------------------------------------------*/
 
 #include <Wire.h>
@@ -65,15 +66,20 @@ uint32_t redBuffer[100];  // red LED sensor data
 float beatsPerMinute;
 int beatAvg;
 
-
 long timewait1, timewait2;
 bool canSend = false;
+
+//------------------------------------------------------------
+int unsafeHR = 0;
+int unsafeSpO2 = 0;
+int unsafeTemp = 0;
+//-----------------------------------------------------------
+
 
 
 void setup() {
   Serial.begin(9600);
-  Serial.println("Initializing...");
-  configFirebase();
+  Serial.println("Initializing...");  
   pinMode(buzzer, OUTPUT);
   // Initialize sensor
   while (!particleSensor.begin(Wire, I2C_SPEED_FAST))  // Use default I2C port, 400kHz speed
@@ -84,12 +90,17 @@ void setup() {
     Serial.println("OLED was not found.");
   }
   configSensor();
+  displayHello();
+  configFirebase();  
   display.clearDisplay();
   display.display();
+  pinMode(ledPin, OUTPUT);
+  digitalWrite(ledPin, LOW);
 }
+//---------------------------------------------------------------------
 void loop() {
   long irValue = particleSensor.getIR();
-  if (irValue < 5000) {
+  if (irValue < 10000) {
     Serial.println("No finger ?");
     displayNoFinger();
     //    turnOnBuzzer(500);
@@ -97,23 +108,18 @@ void loop() {
     displayValues();
     if (checkForBeat(irValue) == true) {
       //We sensed a beat!
-      long delta = millis() - lastBeat - (timewait2- timewait1);
+      long delta = millis() - lastBeat - (timewait2 - timewait1);
       lastBeat = millis();
-      
-      
       beatsPerMinute = 60 / (delta / 1000.0);
-
       if (beatsPerMinute < 255 && beatsPerMinute > 20) {
         rates[rateSpot++] = (byte)beatsPerMinute;  //Store this reading in the array
         rateSpot %= RATE_SIZE;                     //Wrap variable
-
         //Take average of readings
         beatAvg = 0;
         for (byte x = 0; x < RATE_SIZE; x++)
           beatAvg += rates[x];
         beatAvg /= RATE_SIZE;
       }
-
       timewait1 = millis();
       readHeartRateAndSpO2();
       temp = particleSensor.readTemperature();
@@ -125,13 +131,10 @@ void loop() {
     }
   }
 }
-
+//----------------------------------------------------------------
 void readHeartRateAndSpO2() {
   bufferLength = 40;  // buffer length of 100 stores 4 seconds of samples running at 25sps
-
-//  particleSensor.setSampleRate(100);
-
-
+                      //  particleSensor.setSampleRate(100);
   // read the first 100 samples, and determine the signal range
   for (byte i = 0; i < bufferLength; i++) {
     while (particleSensor.available() == false)  // do we have new data?
@@ -139,11 +142,9 @@ void readHeartRateAndSpO2() {
 
     redBuffer[i] = particleSensor.getRed();
     irBuffer[i] = particleSensor.getIR();
-    
-    particleSensor.nextSample();  // We're finished with this sample so move to next sample
-    
-  }
 
+    particleSensor.nextSample();  // We're finished with this sample so move to next sample
+  }
   // calculate heart rate and SpO2 after first 100 samples (first 4 seconds of samples)
   maxim_heart_rate_and_oxygen_saturation(irBuffer, bufferLength, redBuffer, &spO2, &validSPO2, &heartRate, &validHeartRate);
 }
@@ -169,11 +170,11 @@ void displayValues() {
   display.display();
 }
 void checkValidvalues() {
-  if (beatAvg >= 50 && beatAvg <= 130) {
+  if (beatAvg >= 45 && beatAvg <= 130) {
     validHR = beatAvg;
     canSend = true;
   }
-  
+
   if (temp >= 30 && temp <= 40) {
     validTemp = temp;
     canSend = true;
@@ -182,8 +183,8 @@ void checkValidvalues() {
     validSpO2 = spO2;
     canSend = true;
   }
+  warning();
 }
-
 void displaySerial() {
   Serial.print("HeartRate= ");
   Serial.print(heartRate, 0);
@@ -230,8 +231,8 @@ void configFirebase() {
 }
 void sendDataToFireBase() {
 
-  if (Firebase.ready() && signupOK && canSend ==true) {
-    canSend  = false;
+  if (Firebase.ready() && signupOK && canSend == true) {
+    canSend = false;
 
     // Write an Int number on the database path test/spo2
     if (Firebase.RTDB.setInt(&fbdo, "test/spo2", validSpO2)) {
@@ -275,9 +276,75 @@ void displayNoFinger() {
   display.clearDisplay();
   display.setTextSize(1);
   display.setTextColor(SSD1306_WHITE);
-  display.setCursor(10, 5);
+  display.setCursor(25, 5);
   display.print("Hay deo thiet");
-  display.setCursor(10, 25);
+  display.setCursor(25, 20);
   display.print("bi vao tay !");
+  display.display();
+}
+void displayHello() {
+  display.clearDisplay();
+  display.setTextSize(2);
+  display.setTextColor(SSD1306_WHITE);
+  display.setCursor(5, 10);
+  display.print("Xin chao !");  
+  display.display();
+}
+//-------------------------------------------------
+void warning(){
+  if ((validHR <= 60 || heartRate >= 100) && validHR != 0) {
+    if (++unsafeHR >= 5){
+      displayHRWarning();
+      turnOnBuzzer(unsafeHR * 200);
+    }
+  } else {
+    unsafeHR = 0;
+  }
+
+
+  if ((validTemp < 34 || validTemp > 37.5) && validTemp != 0) {
+    if (++unsafeTemp >= 5) {
+      displayTempWarning();  
+      turnOnBuzzer(unsafeTemp * 200);
+    }
+  } else {
+    unsafeTemp = 0;
+  }
+
+  if (validSpO2 < 94 && validSpO2 != 0) {
+    if (++unsafeSpO2 >= 5) {
+      displaySpO2Warning();
+      turnOnBuzzer(unsafeSpO2 * 200);
+    }
+  } else unsafeSpO2 = 0;
+}
+void displayHRWarning() {
+  display.clearDisplay();
+  display.setTextSize(1);
+  display.setTextColor(SSD1306_WHITE);
+  display.setCursor(5, 5);
+  display.print("Nhip tim");
+  display.setCursor(5, 20);
+  display.print("nguong nguy hiem!");
+  display.display();
+}
+void displayTempWarning() {
+  display.clearDisplay();
+  display.setTextSize(1);
+  display.setTextColor(SSD1306_WHITE);
+  display.setCursor(5, 5);
+  display.print("Nhiet do");
+  display.setCursor(5, 20);
+  display.print("nguong nguy hiem!");
+  display.display();
+}
+void displaySpO2Warning() {
+  display.clearDisplay();
+  display.setTextSize(1);
+  display.setTextColor(SSD1306_WHITE);
+  display.setCursor(5, 5);
+  display.print("Nong do oxi");
+  display.setCursor(5, 20);
+  display.print("nguong nguy hiem!");
   display.display();
 }
